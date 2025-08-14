@@ -92,4 +92,4 @@ Adjust safety thresholds in the main scripts based on your environment size.
 
 ---
 
-**Part of the PowerShell Library:** Visit the [main repository](../README.md) for other solutions and tools.
+**Part of tmy PowerShell Library:** Visit the [main repository](../README.md) to explore other solutions and tools
