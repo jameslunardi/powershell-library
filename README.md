@@ -10,27 +10,17 @@ These scripts were originally developed for specific enterprise environments. Th
 
 ### 🔄 [AD-Sync-Solution](AD-Sync-Solution/)
 **Enterprise Active Directory User Synchronisation System**
-
 Synchronises user accounts between two AD domains. Originally built as an interim solution in 2019, it ran in production for 5 years until replaced by enterprise IAM.
 Features cross-domain sync with safety thresholds, quarantine process, Unix attributes support, and comprehensive logging.
 
 ### 🛠️ [DevOps-Tools](DevOps-Tools/)
 **DevOps Automation and Infrastructure Utilities**
-
-Collection of DevOps automation tools for artifact management and Azure administration.
-
-#### Upload-ToArtifactory.ps1
-Enterprise file upload utility for JFrog Artifactory with integrity verification and progress tracking.
-
-#### Export-AzureADApplications.ps1
-Azure AD application inventory and audit tool for compliance reporting and security audits.
+A collection of DevOps automation tools for artifact management and Azure administration.
 
 ### 🔐 [Security-Tools](Security-Tools/)
 **Security Monitoring and Audit Utilities**
 Security tools for monitoring, auditing, and compliance in enterprise environments.
 
-#### Get-UserLogonActivity.ps1
-Windows Security Event Log analysis for user logon activity monitoring and inactive account detection.
 
 ## Contact
 If you want to contact me:
