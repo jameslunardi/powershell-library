@@ -1,6 +1,6 @@
 # PowerShell Library
 
-A collection of PowerShell scripts and automation solutions developed to solve real-world problems in a production environment. Built from a Security Engineering perspective for to assist with AD management, Azure Administration, and Security Operations.
+A collection of PowerShell scripts and automation solutions developed to solve real-world problems in a production environment. Built from a Security Engineering perspective to assist with AD Management, Azure Administration, and Security Operations.
 
 ## Disclaimer
 
