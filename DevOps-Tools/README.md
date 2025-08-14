@@ -11,4 +11,4 @@ Uploads files to JFrog Artifactory with integrity verification and progress trac
 
 ---
 
-**Part of the PowerShell Library:** Visit the [main repository](../README.md) to explore other solutions and tools.
+**Part of my PowerShell Library:** Visit the [main repository](../README.md) to explore other solutions and tools.
