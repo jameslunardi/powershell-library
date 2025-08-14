@@ -4,10 +4,10 @@ A collection of PowerShell scripts and utilities for DevOps workflows, including
 
 ## Scripts
 
-### Upload-ToArtifactory.ps1
+### Upload_To_Artifactory.ps1
 Uploads files to JFrog Artifactory with integrity verification and progress tracking.
 
-**[📖 Full Documentation](Upload-ToArtifactory-README.md)**
+**[📖 Full Documentation](Upload_ToArtifactory_README.md)**
 
 ---
 
