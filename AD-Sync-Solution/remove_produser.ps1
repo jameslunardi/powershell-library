@@ -29,7 +29,7 @@
     Executes actual user removal operations
 
 .NOTES
-    Author: Security Engineering Team
+    Author: James Lunardi
     Version: 1.0
     
     Safety Features:
@@ -39,7 +39,8 @@
     - Group membership cleanup
     
 .LINK
-    https://github.com/yourusername/powershell-library
+    https://github.com/jameslunardi/powershell-library
+    https://www.linkedin.com/in/jameslunardi/
 #>
 
 function Remove-ProdUser {

@@ -22,14 +22,15 @@
     Actually removes group memberships from quarantined users
 
 .NOTES
-    Author: Security Engineering Team
+    Author: James Lunardi
     Version: 1.0
     
     This script should be run periodically to ensure quarantined users
     don't retain access through overlooked group memberships.
     
 .LINK
-    https://github.com/yourusername/powershell-library
+    https://github.com/jameslunardi/powershell-library
+    https://www.linkedin.com/in/jameslunardi/
 #>
 
 [CmdletBinding()]

@@ -34,7 +34,7 @@
     Executes actual attribute updates
 
 .NOTES
-    Author: Security Engineering Team
+    Author: James Lunardi
     Version: 1.0
     
     Safety Features:
@@ -44,7 +44,8 @@
     - Special handling for complex attributes
     
 .LINK
-    https://github.com/yourusername/powershell-library
+    https://github.com/jameslunardi/powershell-library
+    https://www.linkedin.com/in/jameslunardi/
 #>
 
 function Update-ProdUser {

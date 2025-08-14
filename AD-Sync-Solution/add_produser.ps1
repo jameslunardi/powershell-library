@@ -31,7 +31,7 @@
     Creates actual user accounts
 
 .NOTES
-    Author: Security Engineering Team
+    Author: James Lunardi
     Version: 1.0
     
     Safety Features:
@@ -42,7 +42,8 @@
     - Comprehensive error handling
     
 .LINK
-    https://github.com/yourusername/powershell-library
+    https://github.com/jameslunardi/powershell-library
+    https://www.linkedin.com/in/jameslunardi/
 #>
 
 function Add-ProdUser {

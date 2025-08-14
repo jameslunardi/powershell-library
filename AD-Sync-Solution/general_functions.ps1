@@ -12,7 +12,7 @@
     and user filtering for the synchronisation process.
 
 .NOTES
-    Author: Security Engineering Team
+    Author: James Lunardi
     Version: 1.0
     
     Prerequisites:
@@ -22,7 +22,8 @@
     - Network connectivity to both domains
     
 .LINK
-    https://github.com/yourusername/powershell-library
+    https://github.com/jameslunardi/powershell-library
+    https://www.linkedin.com/in/jameslunardi/
 #>
 
 #region Email Functions

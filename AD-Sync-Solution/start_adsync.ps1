@@ -22,7 +22,7 @@
     Runs the sync with actual changes (after editing the functions to set ReportOnly = $false)
 
 .NOTES
-    Author: Security Engineering Team
+    Author: James Lunardi
     Version: 1.3
     
     Prerequisites:
@@ -39,7 +39,8 @@
     - Comprehensive logging
 
 .LINK
-    https://github.com/yourusername/powershell-library
+    https://github.com/jameslunardi/powershell-library
+    https://www.linkedin.com/in/jameslunardi/
 #>
 
 [CmdletBinding()]
