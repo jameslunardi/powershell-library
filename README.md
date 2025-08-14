@@ -10,6 +10,7 @@ These scripts were originally developed for specific enterprise environments. Th
 
 ### 🔄 [AD-Sync-Solution](AD-Sync-Solution/)
 **Enterprise Active Directory User Synchronisation System**
+
 Synchronises user accounts between two AD domains. Originally built as an interim solution in 2019, it ran in production for 5 years until replaced by enterprise IAM.
 Features cross-domain sync with safety thresholds, quarantine process, Unix attributes support, and comprehensive logging.
 
