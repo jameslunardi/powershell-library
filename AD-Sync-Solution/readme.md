@@ -4,6 +4,20 @@ A comprehensive PowerShell-based enterprise solution for synchronising user acco
 
 > **Note:** This is a complete enterprise-grade system that was used in production to manage user synchronisation across domains. It demonstrates advanced PowerShell development, enterprise security practices, and production operational procedures.
 
+## Disclaimer
+
+**Important:** This solution was originally developed for a specific enterprise environment and is provided as-is for educational and reference purposes.
+
+- **Original Development:** Created without AI assistance and used in production (June 2019 - June 2024)
+- **AI Enhancement:** Scripts have been sanitised and documented with AI assistance (August 2025)
+- **Testing Status:** Enhanced scripts have NOT been tested post-processing
+- **Use at Own Risk:** Test thoroughly in your environment before any production use
+- **Impact Warning:** This solution modifies Active Directory user accounts across domains
+- **Prerequisites:** Ensure appropriate AD backups, recovery procedures, and permissions
+- **Compliance:** Validate the solution meets your organization's compliance and audit requirements
+
+The author assumes no responsibility for any data loss, security issues, or operational problems resulting from the use of this code. Professional testing and validation are strongly recommended.
+
 ## Overview
 
 This solution provides automated synchronisation of user accounts between domains, including:
@@ -134,9 +148,10 @@ Edit configuration sections in each script file
 
 ### Scheduled Execution
 Recommended: Run via Windows Task Scheduler
-- **Frequency**: Daily during off-hours
+- **Frequency**: Hourly (every hour on the hour for near real-time sync)
 - **Account**: Service account with required permissions
 - **Working Directory**: Script location
+- **Off-hours maintenance**: Consider daily full reconciliation during low-usage periods
 
 ### Individual Functions
 ```powershell
@@ -244,6 +259,15 @@ For issues or questions:
 2. Review this documentation for configuration guidance
 3. Test in ReportOnly mode before making changes
 4. Contact your IT team for domain-specific issues
+
+## Development Notes
+
+This solution represents production code developed as an **interim solution** for enterprise user synchronisation without AI assistance. Originally created in June 2019 as a temporary measure, the solution proved so robust and reliable that it remained the primary production system for 5 years until a dedicated enterprise IAM solution finally replaced it in June 2024.
+
+**Original Development:** June 2019 - "Interim" solution built from scratch  
+**Production Lifecycle:** June 2019 - June 2024 (5 years as primary production system)  
+**Replacement:** June 2024 - Finally superseded by dedicated enterprise IAM platform  
+**Portfolio Preparation:** August 2025 - Sanitised and documented with AI assistance for professional presentation
 
 ---
 
