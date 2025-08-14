@@ -17,13 +17,10 @@ Features cross-domain sync with safety thresholds, quarantine process, Unix attr
 ## Tools
 
 ### 🛠️ [DevOps-Tools](DevOps-Tools/)
-**DevOps Automation and Infrastructure Utilities**
-A collection of DevOps automation tools for artifact management and Azure administration.
+**DevOps Automation and Infrastructure Utilities** - A collection of DevOps automation tools for artifact management and Azure administration.
 
 ### 🔐 [Security-Tools](Security-Tools/)
-**Security Monitoring and Audit Utilities**
-Security tools for monitoring, auditing, and compliance in enterprise environments.
-
+**Security Monitoring and Audit Utilities** - Security tools for monitoring, auditing, and compliance in enterprise environments.
 
 ## Contact
 If you want to contact me:
