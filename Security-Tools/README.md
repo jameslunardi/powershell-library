@@ -11,17 +11,17 @@ These scripts were originally developed for specific enterprise environments. Th
 ### Get-UserLogonActivity.ps1
 Windows Security Event Log analysis for user logon activity monitoring and inactive account detection.
 
-**[📖 Full Documentation](Get-UserLogonActivity-README.md)**
+**[📖 Full Documentation](get_user_logon_activity_README.md)**
 
 ### Sync-AzureADActivity.ps1
 Synchronises Azure AD user sign-in activity to on-premises Active Directory for hybrid identity governance and licence optimisation.
 
-**[📖 Full Documentation](Sync-AzureADActivity-README.md)**
+**[📖 Full Documentation](sync_azuread_activity_README.md)**
 
 ### Get-AzureADLicenseReport.ps1
 Azure AD licence utilisation and user activity reporting for cost optimisation and compliance.
 
-**[📖 Full Documentation](Get-AzureADLicenseReport-README.md)**
+**[📖 Full Documentation](get_azuread_license_report_README.md)**
 
 ---
 
