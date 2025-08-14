@@ -27,6 +27,26 @@ Comprehensive Windows Security Event Log analysis for user logon activity monito
 .\Get-UserLogonActivity.ps1 -StartTime (Get-Date).AddDays(-7) -OutputPath "C:\Reports\LogonActivity.csv"
 ```
 
+### Sync-AzureADActivity.ps1
+Synchronizes Azure AD user sign-in activity to on-premises Active Directory for hybrid identity governance and license optimization. Enables activity-aware account lifecycle management in hybrid environments.
+
+**[📖 Full Documentation](Sync-AzureADActivity-README.md)**
+
+```powershell
+# Example usage
+.\Sync-AzureADActivity.ps1 -ClientId $clientId -TenantId $tenantId -CertificateThumbprint $certThumb -ActivityThresholdDays 60
+```
+
+### Get-AzureADLicenseReport.ps1
+Comprehensive Azure AD license utilization and user activity reporting for cost optimization and compliance. Provides detailed insights into license consumption patterns and inactive user identification.
+
+**[📖 Full Documentation](Get-AzureADLicenseReport-README.md)**
+
+```powershell
+# Example usage
+.\Get-AzureADLicenseReport.ps1 -ClientId $clientId -TenantId $tenantId -CertificateThumbprint $certThumb -OutputPath "C:\Reports"
+```
+
 ---
 
 ## General Requirements
