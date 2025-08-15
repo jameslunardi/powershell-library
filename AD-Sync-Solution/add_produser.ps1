@@ -46,6 +46,11 @@
     https://www.linkedin.com/in/jameslunardi/
 #>
 
+# Import AD Command Wrappers for test mode support
+if (Test-Path (Join-Path $PSScriptRoot "Tests\ADCommandWrappers.ps1")) {
+    . (Join-Path $PSScriptRoot "Tests\ADCommandWrappers.ps1")
+}
+
 function Add-ProdUser {
     [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'High')]
     param(
@@ -176,7 +181,7 @@ function Add-ProdUser {
         # =========================================================================
         
         try {
-            [string]$TargetDomainController = (Get-ADDomainController -DomainName $TargetDomain -Discover -ErrorAction Stop).hostname
+            [string]$TargetDomainController = (Invoke-GetADDomainController -DomainName $TargetDomain -Discover -ErrorAction Stop).hostname
             Write-Verbose "Using domain controller: $TargetDomainController"
         }
         catch {
@@ -192,7 +197,7 @@ function Add-ProdUser {
         # =========================================================================
         
         try {
-            $NISObject = Get-ADObject $NISObjectDN -Properties * -Server $TargetDomainController
+            $NISObject = Invoke-GetADObject -Identity $NISObjectDN -Properties * -Server $TargetDomainController
             $MaxUid = $NISObject.msSFU30MaxUidNumber
             $UpdateMaxUid = $MaxUid + 1
             Write-Verbose "Current max UID: $MaxUid, Next UID: $UpdateMaxUid"
@@ -323,8 +328,8 @@ function Add-ProdUser {
         # =========================================================================
         
         # Check for existing accounts with same mail or employee ID
-        $MailEmployeeIDCheck = Get-ADUser -Filter { (EmailAddress -eq $Mail) -or (EmployeeID -eq $EmployeeID) } -Properties SamAccountName, EmailAddress, EmployeeID
-        $SamAccountNameCheck = Get-ADUser -Filter { SamAccountName -eq $SamAccountName } -Properties SamAccountName, EmailAddress, EmployeeID
+        $MailEmployeeIDCheck = Invoke-GetADUser -Filter "(EmailAddress -eq '$Mail') -or (EmployeeID -eq '$EmployeeID')" -Properties SamAccountName, EmailAddress, EmployeeID
+        $SamAccountNameCheck = Invoke-GetADUser -Filter "SamAccountName -eq '$SamAccountName'" -Properties SamAccountName, EmailAddress, EmployeeID
         
         if ($MailEmployeeIDCheck) {
             Write-Warning "Trying to create $SamAccountName, but a user already exists with the same Mail or EmployeeID:"
@@ -346,7 +351,7 @@ function Add-ProdUser {
             $Count = 1
             do {
                 $NewSamAccountName = $SamAccountName + $Count.ToString("D2")
-                $SamAccountNameLoopCheck = Get-ADUser -Filter { SamAccountName -eq $NewSamAccountName } -Properties SamAccountName, EmailAddress, EmployeeID
+                $SamAccountNameLoopCheck = Invoke-GetADUser -Filter "SamAccountName -eq '$NewSamAccountName'" -Properties SamAccountName, EmailAddress, EmployeeID
                 
                 Write-Warning "A user exists with SamAccountName: $SamAccountName"
                 Write-Warning "Trying: $NewSamAccountName"
@@ -380,7 +385,7 @@ function Add-ProdUser {
             }
             else {
                 Write-Verbose "Creating user: $($Params.SamAccountName)"
-                New-ADUser @Params
+                Invoke-NewADUser @Params
             }
         }
         catch {
@@ -429,11 +434,11 @@ function Add-ProdUser {
             try {
                 if ($ReportOnly) {
                     Write-Verbose "Would update Unix UID counter to: $UpdateMaxUid"
-                    Set-ADObject $NISObject -Replace @{msSFU30MaxUidNumber = $UpdateMaxUid } -WhatIf
+                    # In ReportOnly mode, don't actually update the UID counter
                 }
                 else {
                     Write-Verbose "Updating Unix UID counter to: $UpdateMaxUid"
-                    Set-ADObject $NISObject -Replace @{msSFU30MaxUidNumber = $UpdateMaxUid }
+                    Invoke-SetADObject -Identity $NISObject -Replace @{msSFU30MaxUidNumber = $UpdateMaxUid }
                 }
             }
             catch {

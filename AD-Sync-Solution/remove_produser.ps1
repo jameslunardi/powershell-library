@@ -43,6 +43,11 @@
     https://www.linkedin.com/in/jameslunardi/
 #>
 
+# Import AD Command Wrappers for test mode support
+if (Test-Path (Join-Path $PSScriptRoot "Tests\ADCommandWrappers.ps1")) {
+    . (Join-Path $PSScriptRoot "Tests\ADCommandWrappers.ps1")
+}
+
 function Remove-ProdUser {
     [CmdletBinding(SupportsShouldProcess = $false, ConfirmImpact = 'High')]
     param(
@@ -143,15 +148,13 @@ function Remove-ProdUser {
             try {
                 if ($ReportOnly) {
                     Write-Verbose "Running in Report Only Mode - Would delete user: $($User.SamAccountName)"
-                    Set-ADUser $User.DistinguishedName -Replace @{info = "$Info" } -ErrorAction SilentlyContinue -WhatIf
-                    Start-Sleep -Seconds 2
-                    Remove-ADUser $User.DistinguishedName -ErrorAction SilentlyContinue -WhatIf
+                    Write-Verbose "Would update info field and then delete account"
                 }
                 else {
                     Write-Verbose "Updating info attribute and deleting user: $($User.SamAccountName)"
-                    Set-ADUser $User.DistinguishedName -Replace @{info = "$Info" } -ErrorAction SilentlyContinue
+                    Invoke-SetADUser -Identity $User.DistinguishedName -Replace @{info = "$Info" }
                     Start-Sleep -Seconds 2
-                    Remove-ADUser $User.DistinguishedName -ErrorAction SilentlyContinue -Confirm:$false
+                    Invoke-RemoveADUser -Identity $User.DistinguishedName -Confirm:$false
                 }
             }
             catch {
@@ -197,35 +200,23 @@ function Remove-ProdUser {
             try {
                 if ($ReportOnly) {
                     Write-Verbose "Running in Report Only Mode - Would quarantine user: $($User.SamAccountName)"
-                    
-                    # Disable account and update info
-                    Set-ADUser $User.DistinguishedName -Enabled $false -Replace @{info = "$Info" } -ErrorAction SilentlyContinue -WhatIf
-                    
-                    # Get and remove group memberships
-                    $Groups = Get-ADUser -Identity $User.DistinguishedName -Properties memberof -ErrorAction SilentlyContinue | 
-                        Select-Object -ExpandProperty memberof -ErrorAction SilentlyContinue
-                    $Groups | Remove-ADGroupMember -Members $User.DistinguishedName -Confirm:$false -WhatIf
-                    
-                    Start-Sleep -Seconds 1.5
-                    
-                    # Move to Leavers OU
-                    Move-ADObject $User.DistinguishedName -TargetPath $LeaversOU -ErrorAction SilentlyContinue -WhatIf
+                    Write-Verbose "Would disable account, remove group memberships, and move to Leavers OU"
                 }
                 else {
                     Write-Verbose "Quarantining user: $($User.SamAccountName)"
                     
                     # Disable account and update info
-                    Set-ADUser $User.DistinguishedName -Enabled $false -Replace @{info = "$Info" } -ErrorAction SilentlyContinue
+                    Invoke-SetADUser -Identity $User.DistinguishedName -Replace @{Enabled = $false; info = "$Info" }
                     
                     # Get and remove group memberships
-                    $Groups = Get-ADUser -Identity $User.DistinguishedName -Properties memberof -ErrorAction SilentlyContinue | 
+                    $Groups = Invoke-GetADUser -Identity $User.DistinguishedName -Properties memberof | 
                         Select-Object -ExpandProperty memberof -ErrorAction SilentlyContinue
-                    $Groups | Remove-ADGroupMember -Members $User.DistinguishedName -Confirm:$false
+                    $Groups | ForEach-Object { Invoke-RemoveADGroupMember -Identity $_ -Members $User.DistinguishedName -Confirm:$false }
                     
                     Start-Sleep -Seconds 1.5
                     
                     # Move to Leavers OU
-                    Move-ADObject $User.DistinguishedName -TargetPath $LeaversOU -ErrorAction SilentlyContinue
+                    Invoke-MoveADObject -Identity $User.DistinguishedName -TargetPath $LeaversOU
                 }
             }
             catch {

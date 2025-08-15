@@ -8,6 +8,15 @@
 #>
 
 BeforeAll {
+    # Set test mode for wrapper functions
+    $env:ADSYNC_TEST_MODE = "Mock"
+    
+    # Import all required functions
+    . (Join-Path $PSScriptRoot "..\general_functions.ps1")
+    . (Join-Path $PSScriptRoot "..\add_produser.ps1") 
+    . (Join-Path $PSScriptRoot "..\remove_produser.ps1")
+    . (Join-Path $PSScriptRoot "..\update_produser.ps1")
+    
     # Import the main script functions (but don't execute the script)
     $MainScriptPath = Join-Path $PSScriptRoot "..\start_adsync.ps1"
     
@@ -545,4 +554,9 @@ Describe "Start-ADSync Integration Tests" {
             }
         }
     }
+}
+
+AfterAll {
+    # Clean up test mode
+    $env:ADSYNC_TEST_MODE = $null
 }

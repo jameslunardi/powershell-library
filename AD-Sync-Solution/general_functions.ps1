@@ -51,6 +51,12 @@
 .EXAMPLE
     Send-Email -Message "Sync completed successfully" -Subject "ADSync - Success"
 #>
+
+# Import AD Command Wrappers for test mode support
+if (Test-Path (Join-Path $PSScriptRoot "Tests\ADCommandWrappers.ps1")) {
+    . (Join-Path $PSScriptRoot "Tests\ADCommandWrappers.ps1")
+}
+
 function Send-Email {
     [CmdletBinding()]
     param(
@@ -159,7 +165,7 @@ function Export-SourceUsers {
     # =============================================================================
     
     try {
-        [string]$SourceDomainController = (Get-ADDomainController -DomainName $SourceDomain -Discover -ErrorAction Stop).hostname
+        [string]$SourceDomainController = (Invoke-GetADDomainController -DomainName $SourceDomain -Discover -ErrorAction Stop).hostname
         Write-Verbose "Connected to Source domain controller: $SourceDomainController"
     }
     catch {
@@ -251,10 +257,10 @@ function Export-SourceUsers {
         Write-Verbose "Retrieving users from Source domain..."
         
         if ($Creds) {
-            $Users = Get-ADUser @Params -Credential $Creds | Select-Object $ADProperties
+            $Users = Invoke-GetADUser @Params -Credential $Creds | Select-Object $ADProperties
         }
         else {
-            $Users = Get-ADUser @Params | Select-Object $ADProperties
+            $Users = Invoke-GetADUser @Params | Select-Object $ADProperties
         }
         
         Write-Verbose "Retrieved $($Users.Count) users from Source domain"
@@ -326,7 +332,7 @@ function Export-ProdUsers {
     # =============================================================================
     
     try {
-        [string]$TargetDomainController = (Get-ADDomainController -DomainName $TargetDomain -Discover -ErrorAction Stop).hostname
+        [string]$TargetDomainController = (Invoke-GetADDomainController -DomainName $TargetDomain -Discover -ErrorAction Stop).hostname
         Write-Verbose "Connected to Target domain controller: $TargetDomainController"
     }
     catch {
@@ -370,7 +376,7 @@ function Export-ProdUsers {
     try {
         Write-Verbose "Retrieving users from Target domain..."
         
-        $AllUsers = Get-ADUser @Params | Select-Object $ADProperties
+        $AllUsers = Invoke-GetADUser @Params | Select-Object $ADProperties
         
         # Filter out test accounts, third-party accounts, and service accounts
         $FilteredUsers = $AllUsers | Where-Object {

@@ -48,6 +48,11 @@
     https://www.linkedin.com/in/jameslunardi/
 #>
 
+# Import AD Command Wrappers for test mode support
+if (Test-Path (Join-Path $PSScriptRoot "Tests\ADCommandWrappers.ps1")) {
+    . (Join-Path $PSScriptRoot "Tests\ADCommandWrappers.ps1")
+}
+
 function Update-ProdUser {
     [CmdletBinding()]
     param(
@@ -145,20 +150,20 @@ function Update-ProdUser {
                     Write-Verbose "Setting AD Account Expiration on $($Update.SamAccountName) to $($Update.NewValue)"
                     
                     if ($ReportOnly) {
-                        Set-ADAccountExpiration -Identity $Update.SamAccountName -DateTime $Update.NewValue -WhatIf
+                        Write-Verbose "Would set account expiration to $($Update.NewValue)"
                     }
                     else {
-                        Set-ADAccountExpiration -Identity $Update.SamAccountName -DateTime $Update.NewValue
+                        Invoke-SetADAccountExpiration -Identity $Update.SamAccountName -DateTime $Update.NewValue
                     }
                 }
                 else {
                     Write-Verbose "Clearing AD Account Expiration on $($Update.SamAccountName)"
                     
                     if ($ReportOnly) {
-                        Clear-ADAccountExpiration -Identity $Update.SamAccountName -WhatIf
+                        Write-Verbose "Would clear account expiration"
                     }
                     else {
-                        Clear-ADAccountExpiration -Identity $Update.SamAccountName
+                        Invoke-ClearADAccountExpiration -Identity $Update.SamAccountName
                     }
                 }
             }
@@ -184,7 +189,7 @@ function Update-ProdUser {
                     Write-Verbose "Setting attribute $($Update.Attribute) for $($Update.SamAccountName)"
                     
                     # Get the user object with all properties
-                    $User = Get-ADUser -Identity $Update.SamAccountName -Properties *
+                    $User = Invoke-GetADUser -Identity $Update.SamAccountName -Properties *
                     
                     # Update the appropriate attribute based on type
                     switch ($Update.Attribute) {
@@ -208,12 +213,11 @@ function Update-ProdUser {
                     
                     # Apply the update
                     if ($ReportOnly) {
-                        Write-Verbose "Updating $($Update.Attribute) for $($Update.SamAccountName) in Report Only mode"
-                        Set-ADUser -Instance $User -ErrorAction SilentlyContinue -WhatIf
+                        Write-Verbose "Would update $($Update.Attribute) for $($Update.SamAccountName) to $($Update.NewValue)"
                     }
                     else {
                         Write-Verbose "Updating $($Update.Attribute) for $($Update.SamAccountName)"
-                        Set-ADUser -Instance $User -ErrorAction SilentlyContinue
+                        Invoke-SetADUser -Identity $Update.SamAccountName -Replace @{$Update.Attribute = $Update.NewValue}
                     }
                 }
                 else {
@@ -223,19 +227,19 @@ function Update-ProdUser {
                     if ($Update.Attribute -eq "Office") {
                         # Special handling for Office attribute
                         if ($ReportOnly) {
-                            Set-ADUser $Update.SamAccountName -Clear physicalDeliveryOfficeName -WhatIf
+                            Write-Verbose "Would clear physicalDeliveryOfficeName for $($Update.SamAccountName)"
                         }
                         else {
-                            Set-ADUser $Update.SamAccountName -Clear physicalDeliveryOfficeName
+                            Invoke-SetADUser -Identity $Update.SamAccountName -Clear 'physicalDeliveryOfficeName'
                         }
                     }
                     elseif ($Update.Attribute -eq "l") {
                         # Special handling for location attribute
                         if ($ReportOnly) {
-                            Set-ADUser $Update.SamAccountName -Clear $Update.Attribute -WhatIf
+                            Write-Verbose "Would clear $($Update.Attribute) for $($Update.SamAccountName)"
                         }
                         else {
-                            Set-ADUser $Update.SamAccountName -Clear $Update.Attribute
+                            Invoke-SetADUser -Identity $Update.SamAccountName -Clear $Update.Attribute
                         }
                     }
                 }

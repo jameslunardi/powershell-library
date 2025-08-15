@@ -1,0 +1,66 @@
+{
+  "General": {
+    "ScriptRoot": "C:\\TestLab\\ADSync",
+    "LogPath": "C:\\TestLab\\ADSync\\Logs",
+    "CredentialFile": "C:\\TestLab\\ADSync\\creds.txt"
+  },
+  "SafetyThresholds": {
+    "DeletionThreshold": 2,
+    "AdditionThreshold": 5,
+    "UpdateThreshold": 10
+  },
+  "SourceDomain": {
+    "DomainName": "source.testlab.local",
+    "SearchBase": "OU=TestUsers,DC=source,DC=testlab,DC=local",
+    "ServiceAccount": "TESTLAB\\svc-integration-test",
+    "ExcludedEmployeeIDs": ["TEST999"]
+  },
+  "TargetDomain": {
+    "DomainName": "target.testlab.local",
+    "SearchBase": "DC=target,DC=testlab,DC=local",
+    "InactiveOU": "OU=Inactive,OU=TestUsers,DC=target,DC=testlab,DC=local",
+    "LeaversOU": "OU=Leavers,OU=TestUsers,DC=target,DC=testlab,DC=local",
+    "QuarantineSearchBase": "OU=TestUsers,DC=target,DC=testlab,DC=local",
+    "NISObjectDN": "CN=testlab,CN=ypservers,CN=ypServ30,CN=RpcServices,CN=System,DC=target,DC=testlab,DC=local",
+    "ExcludePatterns": ["test_*", "svc_*", "integtest*"]
+  },
+  "UnixConfiguration": {
+    "DefaultGidNumber": "20100",
+    "DefaultLoginShell": "/bin/bash",
+    "NisDomain": "testlab"
+  },
+  "EmailConfiguration": {
+    "From": "adsync-test@testlab.local",
+    "To": "testteam@testlab.local",
+    "SMTPServer": "smtp.testlab.local",
+    "SMTPPort": 25
+  },
+  "UserAttributes": {
+    "StandardAttributes": [
+      "SamAccountName",
+      "mail",
+      "GivenName",
+      "Surname",
+      "EmployeeID",
+      "Enabled",
+      "AccountExpirationDate",
+      "Title",
+      "Office",
+      "ObjectGUID",
+      "Department",
+      "l",
+      "co",
+      "DistinguishedName"
+    ],
+    "CloudExtensionAttributes": [
+      "msDS-cloudExtensionAttribute1",
+      "msDS-cloudExtensionAttribute2",
+      "msDS-cloudExtensionAttribute3",
+      "msDS-cloudExtensionAttribute6",
+      "msDS-cloudExtensionAttribute7",
+      "msDS-cloudExtensionAttribute10",
+      "msDS-cloudExtensionAttribute11"
+    ],
+    "TargetOnlyAttributes": ["Info"]
+  }
+}

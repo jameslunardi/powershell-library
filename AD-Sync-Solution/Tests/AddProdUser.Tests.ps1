@@ -8,6 +8,9 @@
 #>
 
 BeforeAll {
+    # Set test mode for wrapper functions
+    $env:ADSYNC_TEST_MODE = "Mock"
+    
     # Import the function under test
     $ModulePath = Join-Path $PSScriptRoot "..\add_produser.ps1"
     . $ModulePath
@@ -16,18 +19,8 @@ BeforeAll {
     $TestConfigPath = Join-Path $PSScriptRoot "TestConfig.json"
     $TestConfig = Get-Content $TestConfigPath | ConvertFrom-Json
     
-    # Mock Active Directory commands
-    Mock Get-ADDomainController { 
-        return @{ hostname = "test-dc.test.local" }
-    }
-    
-    Mock Get-ADObject { 
-        return @{ msSFU30MaxUidNumber = 50000 }
-    }
-    
-    Mock Set-ADObject { }
-    Mock New-ADUser { }
-    Mock Get-ADUser { return $null } # No existing users by default
+    # Reset mock data for clean test runs
+    Reset-MockData
     
     # Create test user data
     $script:TestUsers = @(
@@ -60,6 +53,11 @@ BeforeAll {
             'msDS-cloudExtensionAttribute2' = "TestValue2"
         }
     )
+}
+
+AfterAll {
+    # Clean up test mode
+    $env:ADSYNC_TEST_MODE = $null
 }
 
 Describe "Add-ProdUser" {
