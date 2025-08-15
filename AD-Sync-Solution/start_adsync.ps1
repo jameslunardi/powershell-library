@@ -110,7 +110,7 @@ try {
 }
 catch {
     $ErrorMessage = "Failed to collect user data: $($_.Exception.Message)"
-    Write-Error $ErrorMessage
+    Write-Error $ErrorMessage -ErrorAction Continue
     Send-Email -Message $ErrorMessage -Subject "ADSync - Data Collection Error" -Config $Config
     Stop-Transcript
     exit 1

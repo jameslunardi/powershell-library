@@ -163,9 +163,8 @@ function Export-SourceUsers {
         Write-Verbose "Connected to Source domain controller: $SourceDomainController"
     }
     catch {
-        $ErrorMessage = "Error connecting to Source Domain Controller"
-        Write-Error $ErrorMessage
-        throw $ErrorMessage
+        $ErrorMessage = "Error connecting to Source Domain Controller: $($_.Exception.Message)"
+        Write-Error $ErrorMessage -ErrorAction Stop
     }
     
     #endregion Domain Controller Discovery
@@ -262,8 +261,7 @@ function Export-SourceUsers {
     }
     catch {
         $ErrorMessage = "Error connecting to Source Domain [$SourceDomainController]: $($_.Exception.Message)"
-        Write-Error $ErrorMessage
-        throw $ErrorMessage
+        Write-Error $ErrorMessage -ErrorAction Stop
     }
     
     #endregion User Retrieval
@@ -332,9 +330,8 @@ function Export-ProdUsers {
         Write-Verbose "Connected to Target domain controller: $TargetDomainController"
     }
     catch {
-        $ErrorMessage = "Error connecting to Target Domain Controller"
-        Write-Error $ErrorMessage
-        throw $ErrorMessage
+        $ErrorMessage = "Error connecting to Target Domain Controller: $($_.Exception.Message)"
+        Write-Error $ErrorMessage -ErrorAction Stop
     }
     
     #endregion Domain Controller Discovery
@@ -391,8 +388,7 @@ function Export-ProdUsers {
     }
     catch {
         $ErrorMessage = "Error connecting to Target Domain [$TargetDomainController]: $($_.Exception.Message)"
-        Write-Error $ErrorMessage
-        throw $ErrorMessage
+        Write-Error $ErrorMessage -ErrorAction Stop
     }
     
     #endregion User Retrieval

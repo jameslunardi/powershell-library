@@ -98,8 +98,7 @@ function Update-ProdUser {
     if ($UpdateCount -ge $UpdateThreshold) {
         $ErrorMessage = "Too many updates are required: [$UpdateCount]. Update threshold is $UpdateThreshold"
         Write-Verbose $ErrorMessage
-        Write-Error $ErrorMessage
-        throw $ErrorMessage
+        Write-Error $ErrorMessage -ErrorAction Stop
     }
     
     #endregion Safety Check

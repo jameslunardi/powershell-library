@@ -147,8 +147,7 @@ function Add-ProdUser {
         }
         
         $ErrorMessage = "Too many users are marked for creation [$AddCount]. Addition threshold is $AdditionThreshold"
-        Write-Error $ErrorMessage
-        throw $ErrorMessage
+        Write-Error $ErrorMessage -ErrorAction Stop
     }
     
     #endregion Safety Check
@@ -181,8 +180,8 @@ function Add-ProdUser {
             Write-Verbose "Using domain controller: $TargetDomainController"
         }
         catch {
-            Write-Verbose "Cannot get Target Domain Controller"
-            throw "Cannot get Target Domain Controller"
+            $ErrorMessage = "Cannot get Target Domain Controller: $($_.Exception.Message)"
+            Write-Error $ErrorMessage -ErrorAction Stop
         }
         
         #endregion Domain Controller Discovery

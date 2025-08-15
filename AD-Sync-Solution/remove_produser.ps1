@@ -100,8 +100,7 @@ function Remove-ProdUser {
         }
         
         $ErrorMessage = "Too many users are marked for deletion [$DeleteCount]. Deletion threshold is $DeletionThreshold"
-        Write-Error $ErrorMessage
-        throw $ErrorMessage
+        Write-Error $ErrorMessage -ErrorAction Stop
     }
     
     #endregion Safety Check

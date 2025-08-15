@@ -94,8 +94,7 @@ function Get-ADSyncConfig {
         Write-Verbose "Configuration loaded successfully"
     }
     catch {
-        Write-Error "Failed to load configuration from $ConfigPath`: $($_.Exception.Message)"
-        throw
+        Write-Error "Failed to load configuration from $ConfigPath`: $($_.Exception.Message)" -ErrorAction Stop
     }
     
     #endregion Load Configuration
@@ -134,10 +133,31 @@ function Get-ADSyncConfig {
     
     foreach ($Section in $RequiredProperties.Keys) {
         foreach ($Property in $RequiredProperties[$Section]) {
-            if (-not $Config.$Section.$Property) {
+            if ($null -eq $Config.$Section.$Property) {
                 throw "Missing required property '$Property' in section '$Section'"
             }
         }
+    }
+    
+    # Validate SafetyThresholds are positive integers
+    $ThresholdProperties = @('DeletionThreshold', 'AdditionThreshold', 'UpdateThreshold')
+    foreach ($Property in $ThresholdProperties) {
+        $Value = $Config.SafetyThresholds.$Property
+        
+        # Convert to integer (handles both string and numeric JSON values)
+        try {
+            $IntValue = [int]$Value
+        }
+        catch {
+            throw "SafetyThresholds.$Property must be a valid integer. Current value: '$Value'"
+        }
+        
+        # Check if it's positive
+        if ($IntValue -le 0) {
+            throw "SafetyThresholds.$Property must be a positive number greater than 0. Current value: $IntValue"
+        }
+        
+        Write-Verbose "SafetyThresholds.$Property validation passed: $IntValue"
     }
     
     Write-Verbose "Configuration validation completed successfully"
@@ -242,8 +262,7 @@ function Test-ADSyncDirectories {
             }
             catch {
                 $errorMsg = "Failed to create directory $Directory`: $($_.Exception.Message)"
-                Write-Error $errorMsg
-                throw $errorMsg
+                Write-Error $errorMsg -ErrorAction Stop
             }
         }
         else {

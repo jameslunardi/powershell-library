@@ -350,4 +350,102 @@ Describe "Environment Variable Expansion" {
             }
         }
     }
+    
+    Context "When validating SafetyThresholds" {
+        
+        It "Should reject negative threshold values" {
+            $configWithNegativeThreshold = @{
+                General = @{ ScriptRoot = "/tmp"; LogPath = "/tmp"; CredentialFile = "/tmp/cred" }
+                SafetyThresholds = @{
+                    DeletionThreshold = -5
+                    AdditionThreshold = 10
+                    UpdateThreshold = 15
+                }
+                SourceDomain = @{ DomainName = "test.local"; SearchBase = "DC=test"; ServiceAccount = "test\svc" }
+                TargetDomain = @{ DomainName = "target.local"; SearchBase = "DC=target"; InactiveOU = "OU=Inactive"; LeaversOU = "OU=Leavers"; NISObjectDN = "CN=nis" }
+                UnixConfiguration = @{ DefaultGidNumber = "1000"; DefaultLoginShell = "/bin/bash"; NisDomain = "test" }
+                EmailConfiguration = @{ From = "test@test.com"; To = "admin@test.com"; SMTPServer = "smtp.test.com"; SMTPPort = 25 }
+                UserAttributes = @{ StandardAttributes = @("SamAccountName"); CloudExtensionAttributes = @("attr1") }
+            }
+            
+            $tempConfig = New-TemporaryFile
+            $configWithNegativeThreshold | ConvertTo-Json -Depth 10 | Out-File $tempConfig.FullName
+            
+            { Get-ADSyncConfig -ConfigPath $tempConfig.FullName } | Should -Throw "*must be a positive number greater than 0*"
+            
+            Remove-Item $tempConfig.FullName -Force
+        }
+        
+        It "Should reject zero threshold values" {
+            $configWithZeroThreshold = @{
+                General = @{ ScriptRoot = "/tmp"; LogPath = "/tmp"; CredentialFile = "/tmp/cred" }
+                SafetyThresholds = @{
+                    DeletionThreshold = 5
+                    AdditionThreshold = 0
+                    UpdateThreshold = 15
+                }
+                SourceDomain = @{ DomainName = "test.local"; SearchBase = "DC=test"; ServiceAccount = "test\svc" }
+                TargetDomain = @{ DomainName = "target.local"; SearchBase = "DC=target"; InactiveOU = "OU=Inactive"; LeaversOU = "OU=Leavers"; NISObjectDN = "CN=nis" }
+                UnixConfiguration = @{ DefaultGidNumber = "1000"; DefaultLoginShell = "/bin/bash"; NisDomain = "test" }
+                EmailConfiguration = @{ From = "test@test.com"; To = "admin@test.com"; SMTPServer = "smtp.test.com"; SMTPPort = 25 }
+                UserAttributes = @{ StandardAttributes = @("SamAccountName"); CloudExtensionAttributes = @("attr1") }
+            }
+            
+            $tempConfig = New-TemporaryFile
+            $configWithZeroThreshold | ConvertTo-Json -Depth 10 | Out-File $tempConfig.FullName
+            
+            { Get-ADSyncConfig -ConfigPath $tempConfig.FullName } | Should -Throw "*must be a positive number greater than 0*"
+            
+            Remove-Item $tempConfig.FullName -Force
+        }
+        
+        It "Should reject non-integer threshold values" {
+            $configWithStringThreshold = @{
+                General = @{ ScriptRoot = "/tmp"; LogPath = "/tmp"; CredentialFile = "/tmp/cred" }
+                SafetyThresholds = @{
+                    DeletionThreshold = "invalid"
+                    AdditionThreshold = 10
+                    UpdateThreshold = 15
+                }
+                SourceDomain = @{ DomainName = "test.local"; SearchBase = "DC=test"; ServiceAccount = "test\svc" }
+                TargetDomain = @{ DomainName = "target.local"; SearchBase = "DC=target"; InactiveOU = "OU=Inactive"; LeaversOU = "OU=Leavers"; NISObjectDN = "CN=nis" }
+                UnixConfiguration = @{ DefaultGidNumber = "1000"; DefaultLoginShell = "/bin/bash"; NisDomain = "test" }
+                EmailConfiguration = @{ From = "test@test.com"; To = "admin@test.com"; SMTPServer = "smtp.test.com"; SMTPPort = 25 }
+                UserAttributes = @{ StandardAttributes = @("SamAccountName"); CloudExtensionAttributes = @("attr1") }
+            }
+            
+            $tempConfig = New-TemporaryFile
+            $configWithStringThreshold | ConvertTo-Json -Depth 10 | Out-File $tempConfig.FullName
+            
+            { Get-ADSyncConfig -ConfigPath $tempConfig.FullName } | Should -Throw "*must be a valid integer*"
+            
+            Remove-Item $tempConfig.FullName -Force
+        }
+        
+        It "Should accept valid positive threshold values" {
+            $configWithValidThresholds = @{
+                General = @{ ScriptRoot = "/tmp"; LogPath = "/tmp"; CredentialFile = "/tmp/cred" }
+                SafetyThresholds = @{
+                    DeletionThreshold = 45
+                    AdditionThreshold = 300
+                    UpdateThreshold = 300
+                }
+                SourceDomain = @{ DomainName = "test.local"; SearchBase = "DC=test"; ServiceAccount = "test\svc" }
+                TargetDomain = @{ DomainName = "target.local"; SearchBase = "DC=target"; InactiveOU = "OU=Inactive"; LeaversOU = "OU=Leavers"; NISObjectDN = "CN=nis" }
+                UnixConfiguration = @{ DefaultGidNumber = "1000"; DefaultLoginShell = "/bin/bash"; NisDomain = "test" }
+                EmailConfiguration = @{ From = "test@test.com"; To = "admin@test.com"; SMTPServer = "smtp.test.com"; SMTPPort = 25 }
+                UserAttributes = @{ StandardAttributes = @("SamAccountName"); CloudExtensionAttributes = @("attr1") }
+            }
+            
+            $tempConfig = New-TemporaryFile
+            $configWithValidThresholds | ConvertTo-Json -Depth 10 | Out-File $tempConfig.FullName
+            
+            $config = Get-ADSyncConfig -ConfigPath $tempConfig.FullName
+            $config.SafetyThresholds.DeletionThreshold | Should -Be 45
+            $config.SafetyThresholds.AdditionThreshold | Should -Be 300
+            $config.SafetyThresholds.UpdateThreshold | Should -Be 300
+            
+            Remove-Item $tempConfig.FullName -Force
+        }
+    }
 }

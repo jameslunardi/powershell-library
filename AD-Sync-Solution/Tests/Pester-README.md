@@ -84,7 +84,7 @@ cd "C:\Scripts\ADSync"
 
 | Test File | Coverage | Tests | Description |
 |-----------|----------|-------|-------------|
-| **ConfigHelper.Tests.ps1** | 95%+ | 20 | Configuration management and validation |
+| **ConfigHelper.Tests.ps1** | 95%+ | 24 | Configuration management and validation |
 | **GeneralFunctions.Tests.ps1** | 90%+ | 22 | Email functions and user export |
 | **AddProdUser.Tests.ps1** | 90%+ | 20 | User creation functionality |
 | **RemoveProdUser.Tests.ps1** | 85%+ | 16 | User removal and quarantine |
@@ -92,10 +92,11 @@ cd "C:\Scripts\ADSync"
 | **StartADSync.Integration.Tests.ps1** | 80%+ | 10 | End-to-end workflow |
 
 ### Total Test Metrics
-- **106 Total Tests**
+- **110+ Total Tests**
 - **~85% Average Code Coverage**
 - **All Critical Paths Tested**
 - **Error Scenarios Validated**
+- **Configuration Validation Comprehensive**
 
 ## 🧪 Detailed Test Scenarios
 
@@ -110,6 +111,8 @@ Invoke-Pester -Path ".\Tests\ConfigHelper.Tests.ps1" -Output Detailed
 # ✅ Required section validation
 # ✅ Directory creation and permissions
 # ✅ Error handling for invalid configs
+# ✅ Safety threshold validation (positive integers)
+# ✅ Configuration property null checking
 ```
 
 ### User Export Function Tests
