@@ -79,8 +79,7 @@ try {
     Write-Host "Found $($Users.Count) users in quarantine OU" -ForegroundColor Green
 }
 catch {
-    Write-Error "Failed to retrieve users from quarantine OU: $($_.Exception.Message)"
-    exit 1
+    Write-Error "Failed to retrieve users from quarantine OU: $($_.Exception.Message)" -ErrorAction Stop
 }
 
 #endregion Get Quarantined Users
