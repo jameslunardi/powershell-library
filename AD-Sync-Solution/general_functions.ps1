@@ -26,6 +26,9 @@
     https://www.linkedin.com/in/jameslunardi/
 #>
 
+# Import configuration helper
+. "$PSScriptRoot\config_helper.ps1"
+
 #region Email Functions
 # =============================================================================
 # EMAIL NOTIFICATION FUNCTIONS
@@ -55,18 +58,21 @@ function Send-Email {
         [String]$Message,
         
         [Parameter(Mandatory = $true, ValueFromPipeline = $false)]
-        [String]$Subject
+        [String]$Subject,
+        
+        [Parameter(Mandatory = $true, ValueFromPipeline = $false)]
+        [PSCustomObject]$Config
     )
 
     #region Configuration
     # =============================================================================
-    # EMAIL CONFIGURATION - Update for your environment
+    # EMAIL CONFIGURATION - Loaded from config
     # =============================================================================
     
-    $From = "adsync@company.com"
-    $To = "it-team@company.com"
-    $SMTPServer = "smtp.company.com"
-    $SMTPPort = 25
+    $From = $Config.EmailConfiguration.From
+    $To = $Config.EmailConfiguration.To
+    $SMTPServer = $Config.EmailConfiguration.SMTPServer
+    $SMTPPort = $Config.EmailConfiguration.SMTPPort
     
     #endregion Configuration
 
@@ -79,7 +85,7 @@ function Send-Email {
 
 Please refer to the troubleshooting documentation for further information on this issue.
 
-This report was sent by a PowerShell script running on $($env:COMPUTERNAME) (C:\Scripts\ADSync).
+This report was sent by a PowerShell script running on $($env:COMPUTERNAME) ($($Config.General.ScriptRoot)).
 
 Regards,
 IT Operations Team
@@ -127,20 +133,23 @@ IT Operations Team
 #>
 function Export-SourceUsers {
     [CmdletBinding()]
-    param()
+    param(
+        [Parameter(Mandatory = $true)]
+        [PSCustomObject]$Config
+    )
 
     #region Configuration
     # =============================================================================
-    # SOURCE DOMAIN CONFIGURATION - Update for your environment
+    # SOURCE DOMAIN CONFIGURATION - Loaded from config
     # =============================================================================
     
-    $SourceDomain = "source.enterprise.local"
-    $SourceSearchBase = "OU=Accounts,DC=source,DC=enterprise,DC=local"
-    $ServiceAccount = "source\svc-adsync"
-    $CredentialFile = "C:\Scripts\ADSync\encrypt.txt"
+    $SourceDomain = $Config.SourceDomain.DomainName
+    $SourceSearchBase = $Config.SourceDomain.SearchBase
+    $ServiceAccount = $Config.SourceDomain.ServiceAccount
+    $CredentialFile = $Config.General.CredentialFile
     
     # Excluded Employee IDs (test/service accounts)
-    $ExcludedEmployeeIDs = @('TEST001', 'TEST002', 'SVC001', 'SVC002')
+    $ExcludedEmployeeIDs = $Config.SourceDomain.ExcludedEmployeeIDs
     
     #endregion Configuration
 
@@ -166,29 +175,8 @@ function Export-SourceUsers {
     # DEFINE ATTRIBUTES TO RETRIEVE
     # =============================================================================
     
-    $ADProperties = @(
-        "SamAccountName",
-        "mail",
-        "GivenName",
-        "Surname",
-        "EmployeeID",
-        "Enabled",
-        "AccountExpirationDate",
-        "Title",
-        "Office",
-        "ObjectGUID",
-        "Department",
-        "l",                                      # City
-        "co",                                     # Country
-        "msDS-cloudExtensionAttribute1",
-        "msDS-cloudExtensionAttribute2",
-        "msDS-cloudExtensionAttribute3",
-        "msDS-cloudExtensionAttribute6",
-        "msDS-cloudExtensionAttribute7",
-        "msDS-cloudExtensionAttribute10",
-        "msDS-cloudExtensionAttribute11",
-        "DistinguishedName"
-    )
+    # Get user attributes from configuration
+    $ADProperties = Get-ADUserAttributes -Config $Config
     
     #endregion Attribute Definition
 
@@ -316,18 +304,21 @@ function Export-SourceUsers {
 #>
 function Export-ProdUsers {
     [CmdletBinding()]
-    param()
+    param(
+        [Parameter(Mandatory = $true)]
+        [PSCustomObject]$Config
+    )
 
     #region Configuration
     # =============================================================================
-    # TARGET DOMAIN CONFIGURATION - Update for your environment
+    # TARGET DOMAIN CONFIGURATION - Loaded from config
     # =============================================================================
     
-    $TargetDomain = "prod.local"
-    $TargetSearchBase = "DC=prod,DC=local"
+    $TargetDomain = $Config.TargetDomain.DomainName
+    $TargetSearchBase = $Config.TargetDomain.SearchBase
     
     # Account patterns to exclude from sync management
-    $ExcludePatterns = @("test_*", "svc_*", "admin_*")
+    $ExcludePatterns = $Config.TargetDomain.ExcludePatterns
     
     #endregion Configuration
 
@@ -353,30 +344,8 @@ function Export-ProdUsers {
     # DEFINE ATTRIBUTES TO RETRIEVE
     # =============================================================================
     
-    $ADProperties = @(
-        "SamAccountName",
-        "mail",
-        "GivenName",
-        "Surname",
-        "EmployeeID",
-        "Enabled",
-        "AccountExpirationDate",
-        "Title",
-        "Office",
-        "ObjectGUID",
-        "Department",
-        "l",                                      # City
-        "co",                                     # Country
-        "msDS-cloudExtensionAttribute1",
-        "msDS-cloudExtensionAttribute2",
-        "msDS-cloudExtensionAttribute3",
-        "msDS-cloudExtensionAttribute6",
-        "msDS-cloudExtensionAttribute7",
-        "msDS-cloudExtensionAttribute10",
-        "msDS-cloudExtensionAttribute11",
-        "DistinguishedName",
-        "Info"                                    # Include info field for Target domain
-    )
+    # Get user attributes from configuration (including target-only attributes)
+    $ADProperties = Get-ADUserAttributes -Config $Config -IncludeTargetOnly
     
     #endregion Attribute Definition
 
@@ -449,7 +418,11 @@ function Export-ProdUsers {
 # EXPORT FUNCTIONS FOR MODULE USE
 # =============================================================================
 
-# Export functions for use by other scripts
-Export-ModuleMember -Function Send-Email, Export-SourceUsers, Export-ProdUsers
+# Export functions for use by other scripts (only when loaded as module)
+if ($MyInvocation.MyCommand.CommandType -eq 'ExternalScript') {
+    # When dot-sourced, functions are automatically available
+} else {
+    Export-ModuleMember -Function Send-Email, Export-SourceUsers, Export-ProdUsers
+}
 
 #endregion Module Exports

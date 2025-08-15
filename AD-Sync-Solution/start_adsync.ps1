@@ -51,23 +51,26 @@ param(
 
 #region Configuration
 # =============================================================================
-# CONFIGURATION SECTION - Update these values for your environment
+# CONFIGURATION SECTION - Loaded from config.json
 # =============================================================================
 
-# Script Paths
-$ScriptRoot = "C:\Scripts\ADSync"
-$LogPath = "$ScriptRoot\Logs"
+# Load configuration helper and get configuration
+. "$PSScriptRoot\config_helper.ps1"
+$Config = Get-ADSyncConfig
+
+# Validate and create directories
+Test-ADSyncDirectories -Config $Config
 
 # Import Required Functions
-. "$ScriptRoot\Remove-ProdUser.ps1"
-. "$ScriptRoot\Add-ProdUser.ps1"
-. "$ScriptRoot\Update-ProdUser.ps1"
-. "$ScriptRoot\General-Functions.ps1"
+. "$($Config.General.ScriptRoot)\Remove-ProdUser.ps1"
+. "$($Config.General.ScriptRoot)\Add-ProdUser.ps1"
+. "$($Config.General.ScriptRoot)\Update-ProdUser.ps1"
+. "$($Config.General.ScriptRoot)\General-Functions.ps1"
 
-# Safety Thresholds
-$DeletionThreshold = 45
-$AdditionThreshold = 300
-$UpdateThreshold = 300
+# Safety Thresholds from configuration
+$DeletionThreshold = $Config.SafetyThresholds.DeletionThreshold
+$AdditionThreshold = $Config.SafetyThresholds.AdditionThreshold
+$UpdateThreshold = $Config.SafetyThresholds.UpdateThreshold
 
 #endregion Configuration
 
@@ -79,7 +82,7 @@ $UpdateThreshold = 300
 # Setup logging
 $LogTime = Get-Date -Format "MM-dd-yyyy_HH"
 $LogName = "ADSync-$LogTime-log.txt"
-$TranscriptPath = "$LogPath\transcript-$LogTime.log"
+$TranscriptPath = "$($Config.General.LogPath)\transcript-$LogTime.log"
 
 # Start transcript logging
 Start-Transcript -Path $TranscriptPath -Append
@@ -99,8 +102,8 @@ Write-Host "===============================================" -ForegroundColor Gr
 Write-Host "`nCollecting user data from both domains..." -ForegroundColor Cyan
 
 try {
-    $SourceUsers = Export-SourceUsers
-    $TargetUsers = Export-ProdUsers
+    $SourceUsers = Export-SourceUsers -Config $Config
+    $TargetUsers = Export-ProdUsers -Config $Config
     
     Write-Host "Number of users found in Source Domain: $($SourceUsers.count)" -ForegroundColor Yellow
     Write-Host "Number of users found in Target Domain: $($TargetUsers.count)" -ForegroundColor Yellow
@@ -108,7 +111,7 @@ try {
 catch {
     $ErrorMessage = "Failed to collect user data: $($_.Exception.Message)"
     Write-Error $ErrorMessage
-    Send-Email -Message $ErrorMessage -Subject "ADSync - Data Collection Error"
+    Send-Email -Message $ErrorMessage -Subject "ADSync - Data Collection Error" -Config $Config
     Stop-Transcript
     exit 1
 }
@@ -214,7 +217,7 @@ foreach ($User in $SourceMatchedUsers) {
             DistinguishedName = $MatchedTargetUser.DistinguishedName
             SamAccountName = $MatchedTargetUser.SamAccountName
             Attribute = "DistinguishedName"
-            NewValue = "OU=Leavers,OU=Users,OU=Quarantine,OU=TARGET,DC=prod,DC=local"
+            NewValue = $Config.TargetDomain.LeaversOU
             OldValue = $MatchedTargetUser.DistinguishedName
         }
     }
@@ -261,7 +264,7 @@ Write-Host "`nChecking for expired Target accounts outside Leavers OU..." -Foreg
 
 try {
     $ExpiredTargetUsers = Search-ADAccount -AccountExpired | 
-        Where-Object { $_.DistinguishedName -notlike "*OU=Leavers,OU=Users,OU=Quarantine,OU=TARGET,DC=prod,DC=local" }
+        Where-Object { $_.DistinguishedName -notlike "*$($Config.TargetDomain.LeaversOU)" }
     
     foreach ($ExpiredAccount in $ExpiredTargetUsers) {
         $ExpiredUsers += [PSCustomObject]@{
@@ -291,16 +294,16 @@ if ($UsersToUpdate) {
     
     # Export update data for logging
     $UpdateDataLogName = "Update-Data-$LogName"
-    $UpdateDataPath = "$LogPath\$UpdateDataLogName"
+    $UpdateDataPath = "$($Config.General.LogPath)\$UpdateDataLogName"
     $UsersToUpdate | Export-Csv -Path $UpdateDataPath -Append -NoClobber -NoTypeInformation -Encoding UTF8 -Delimiter ";" -Force
     
     # Process updates
     $UpdateLogName = "Update-Results-$LogName"
-    $UpdateLogPath = "$LogPath\$UpdateLogName"
+    $UpdateLogPath = "$($Config.General.LogPath)\$UpdateLogName"
     $UpdateFailure = $false
     
     try {
-        $UpdateResults = Update-ProdUser -Data $UsersToUpdate -ReportOnly $ReportOnly -Verbose
+        $UpdateResults = Update-ProdUser -Data $UsersToUpdate -ReportOnly $ReportOnly -Config $Config -Verbose
         $UpdateResults | Export-Csv -Path $UpdateLogPath -Append -NoClobber -NoTypeInformation -Encoding UTF8 -Delimiter ";" -Force
     }
     catch {
@@ -311,7 +314,7 @@ if ($UsersToUpdate) {
         if ($UpdateFailure) {
             $Message = "Update process failed: $($Error[0].FullyQualifiedErrorId)"
             $Subject = "ADSync - Error in Update Users Module"
-            Send-Email -Message $Message -Subject $Subject
+            Send-Email -Message $Message -Subject $Subject -Config $Config
         }
     }
     
@@ -348,16 +351,16 @@ if ($UsersToAdd) {
     
     # Export addition data for logging
     $AddDataLogName = "Add-Data-$LogName"
-    $AddDataPath = "$LogPath\$AddDataLogName"
+    $AddDataPath = "$($Config.General.LogPath)\$AddDataLogName"
     $UsersToAdd | Export-Csv -Path $AddDataPath -Append -NoClobber -NoTypeInformation -Encoding UTF8 -Delimiter ";" -Force
     
     # Process additions
     $AddLogName = "Add-Results-$LogName"
-    $AddLogPath = "$LogPath\$AddLogName"
+    $AddLogPath = "$($Config.General.LogPath)\$AddLogName"
     $AddFailure = $false
     
     try {
-        $AddResults = Add-ProdUser -Data $UsersToAdd -ReportOnly $ReportOnly -Verbose
+        $AddResults = Add-ProdUser -Data $UsersToAdd -ReportOnly $ReportOnly -Config $Config -Verbose
         $AddResults | Export-Csv -Path $AddLogPath -Append -NoClobber -NoTypeInformation -Encoding UTF8 -Delimiter ";" -Force
     }
     catch {
@@ -368,7 +371,7 @@ if ($UsersToAdd) {
         if ($AddFailure) {
             $Message = "Add process failed: $($Error[0].FullyQualifiedErrorId)"
             $Subject = "ADSync - Error in Add Users Module"
-            Send-Email -Message $Message -Subject $Subject
+            Send-Email -Message $Message -Subject $Subject -Config $Config
         }
     }
     
@@ -405,16 +408,16 @@ if ($UsersToRemove) {
     
     # Export removal data for logging
     $RemoveDataLogName = "Remove-Data-$LogName"
-    $RemoveDataPath = "$LogPath\$RemoveDataLogName"
+    $RemoveDataPath = "$($Config.General.LogPath)\$RemoveDataLogName"
     $UsersToRemove | Export-Csv -Path $RemoveDataPath -Append -NoClobber -NoTypeInformation -Encoding UTF8 -Delimiter ";" -Force
     
     # Process removals
     $RemoveLogName = "Remove-Results-$LogName"
-    $RemoveLogPath = "$LogPath\$RemoveLogName"
+    $RemoveLogPath = "$($Config.General.LogPath)\$RemoveLogName"
     $RemoveFailure = $false
     
     try {
-        $RemoveResults = Remove-ProdUser -Data $UsersToRemove -ReportOnly $ReportOnly -Verbose
+        $RemoveResults = Remove-ProdUser -Data $UsersToRemove -ReportOnly $ReportOnly -Config $Config -Verbose
         $RemoveResults | Export-Csv -Path $RemoveLogPath -Append -NoClobber -NoTypeInformation -Encoding UTF8 -Delimiter ";" -Force
     }
     catch {
@@ -425,7 +428,7 @@ if ($UsersToRemove) {
         if ($RemoveFailure) {
             $Message = "Remove process failed: $($Error[0].FullyQualifiedErrorId)"
             $Subject = "ADSync - Error in Remove Users Module"
-            Send-Email -Message $Message -Subject $Subject
+            Send-Email -Message $Message -Subject $Subject -Config $Config
         }
     }
     

@@ -55,25 +55,28 @@ function Add-ProdUser {
         [Array[]]$Data,
         
         [Parameter(Mandatory = $false)]
-        [bool]$ReportOnly = $true
+        [bool]$ReportOnly = $true,
+        
+        [Parameter(Mandatory = $true)]
+        [PSCustomObject]$Config
     )
 
     #region Configuration
     # =============================================================================
-    # CONFIGURATION SECTION
+    # CONFIGURATION SECTION - Loaded from config
     # =============================================================================
     
     # Safety thresholds
-    $AdditionThreshold = 300
+    $AdditionThreshold = $Config.SafetyThresholds.AdditionThreshold
     
     # Target domain configuration
-    $TargetDomain = "prod.local"
-    $InactiveOU = "OU=Inactive,OU=Users,OU=Quarantine,OU=TARGET,DC=prod,DC=local"
-    $NISObjectDN = "CN=prod,CN=ypservers,CN=ypServ30,CN=RpcServices,CN=System,DC=prod,DC=local"
+    $TargetDomain = $Config.TargetDomain.DomainName
+    $InactiveOU = $Config.TargetDomain.InactiveOU
+    $NISObjectDN = $Config.TargetDomain.NISObjectDN
     
     # Unix/Linux configuration
-    $DefaultGidNumber = "10001"
-    $DefaultLoginShell = "/bin/bash"
+    $DefaultGidNumber = $Config.UnixConfiguration.DefaultGidNumber
+    $DefaultLoginShell = $Config.UnixConfiguration.DefaultLoginShell
     
     #endregion Configuration
 
@@ -262,7 +265,7 @@ function Add-ProdUser {
         
         # Unix/Linux attributes (SFU)
         $OtherAttributes["msSFU30Name"] = $SamAccountName
-        $OtherAttributes["msSFU30NisDomain"] = "prod"
+        $OtherAttributes["msSFU30NisDomain"] = $Config.UnixConfiguration.NisDomain
         $OtherAttributes["uidNumber"] = $MaxUid
         $OtherAttributes["uid"] = $SamAccountName
         $OtherAttributes["unixHomeDirectory"] = "/home/" + $SamAccountName

@@ -1,0 +1,66 @@
+{
+  "General": {
+    "ScriptRoot": "C:\\Scripts\\ADSync",
+    "LogPath": "C:\\Scripts\\ADSync\\Logs",
+    "CredentialFile": "C:\\Scripts\\ADSync\\encrypt.txt"
+  },
+  "SafetyThresholds": {
+    "DeletionThreshold": 45,
+    "AdditionThreshold": 300,
+    "UpdateThreshold": 300
+  },
+  "SourceDomain": {
+    "DomainName": "source.enterprise.local",
+    "SearchBase": "OU=Accounts,DC=source,DC=enterprise,DC=local",
+    "ServiceAccount": "source\\svc-adsync",
+    "ExcludedEmployeeIDs": ["TEST001", "TEST002", "SVC001", "SVC002"]
+  },
+  "TargetDomain": {
+    "DomainName": "prod.local",
+    "SearchBase": "DC=prod,DC=local",
+    "InactiveOU": "OU=Inactive,OU=Users,OU=Quarantine,OU=TARGET,DC=prod,DC=local",
+    "LeaversOU": "OU=Leavers,OU=Users,OU=Quarantine,OU=TARGET,DC=prod,DC=local",
+    "QuarantineSearchBase": "OU=Users,OU=Quarantine,OU=TARGET,DC=prod,DC=local",
+    "NISObjectDN": "CN=prod,CN=ypservers,CN=ypServ30,CN=RpcServices,CN=System,DC=prod,DC=local",
+    "ExcludePatterns": ["test_*", "svc_*", "admin_*"]
+  },
+  "UnixConfiguration": {
+    "DefaultGidNumber": "10001",
+    "DefaultLoginShell": "/bin/bash",
+    "NisDomain": "prod"
+  },
+  "EmailConfiguration": {
+    "From": "adsync@company.com",
+    "To": "it-team@company.com",
+    "SMTPServer": "smtp.company.com",
+    "SMTPPort": 25
+  },
+  "UserAttributes": {
+    "StandardAttributes": [
+      "SamAccountName",
+      "mail",
+      "GivenName",
+      "Surname",
+      "EmployeeID",
+      "Enabled",
+      "AccountExpirationDate",
+      "Title",
+      "Office",
+      "ObjectGUID",
+      "Department",
+      "l",
+      "co",
+      "DistinguishedName"
+    ],
+    "CloudExtensionAttributes": [
+      "msDS-cloudExtensionAttribute1",
+      "msDS-cloudExtensionAttribute2",
+      "msDS-cloudExtensionAttribute3",
+      "msDS-cloudExtensionAttribute6",
+      "msDS-cloudExtensionAttribute7",
+      "msDS-cloudExtensionAttribute10",
+      "msDS-cloudExtensionAttribute11"
+    ],
+    "TargetOnlyAttributes": ["Info"]
+  }
+}

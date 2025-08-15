@@ -39,13 +39,20 @@ param(
     [bool]$RemoveGroups = $false,
     
     [Parameter(Mandatory = $false)]
-    [string]$SearchBase = "OU=Users,OU=Quarantine,OU=TARGET,DC=prod,DC=local"
+    [string]$ConfigPath
 )
 
 #region Configuration
 # =============================================================================
-# CONFIGURATION SECTION
+# CONFIGURATION SECTION - Load from config
 # =============================================================================
+
+# Load configuration helper and get configuration
+. "$PSScriptRoot\config_helper.ps1"
+$Config = Get-ADSyncConfig -ConfigPath $ConfigPath
+
+# Get search base from configuration
+$SearchBase = $Config.TargetDomain.QuarantineSearchBase
 
 Write-Host "===============================================" -ForegroundColor Green
 Write-Host "Group Membership Cleanup for Quarantined Users" -ForegroundColor Green
@@ -199,7 +206,7 @@ else {
 # =============================================================================
 
 if ($UsersWithGroups.Count -gt 0) {
-    $ExportPath = "C:\Scripts\ADSync\Logs\QuarantineGroupCheck-$(Get-Date -Format 'yyyy-MM-dd-HHmm').csv"
+    $ExportPath = "$($Config.General.LogPath)\QuarantineGroupCheck-$(Get-Date -Format 'yyyy-MM-dd-HHmm').csv"
     
     try {
         $ExportData = $UsersWithGroups | Select-Object SamAccountName, Name, DistinguishedName, GroupCount, 

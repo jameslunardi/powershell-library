@@ -1,0 +1,66 @@
+{
+  "General": {
+    "ScriptRoot": "C:\\TestScripts\\ADSync",
+    "LogPath": "C:\\TestScripts\\ADSync\\Logs",
+    "CredentialFile": "C:\\TestScripts\\ADSync\\encrypt.txt"
+  },
+  "SafetyThresholds": {
+    "DeletionThreshold": 5,
+    "AdditionThreshold": 10,
+    "UpdateThreshold": 15
+  },
+  "SourceDomain": {
+    "DomainName": "test.source.local",
+    "SearchBase": "OU=TestAccounts,DC=test,DC=source,DC=local",
+    "ServiceAccount": "test\\svc-testsync",
+    "ExcludedEmployeeIDs": ["TEST001", "TEST002"]
+  },
+  "TargetDomain": {
+    "DomainName": "test.target.local",
+    "SearchBase": "DC=test,DC=target,DC=local",
+    "InactiveOU": "OU=Inactive,OU=Users,OU=Test,DC=test,DC=target,DC=local",
+    "LeaversOU": "OU=Leavers,OU=Users,OU=Test,DC=test,DC=target,DC=local",
+    "QuarantineSearchBase": "OU=Users,OU=Test,DC=test,DC=target,DC=local",
+    "NISObjectDN": "CN=test,CN=ypservers,CN=ypServ30,CN=RpcServices,CN=System,DC=test,DC=target,DC=local",
+    "ExcludePatterns": ["test_*", "svc_*"]
+  },
+  "UnixConfiguration": {
+    "DefaultGidNumber": "20001",
+    "DefaultLoginShell": "/bin/bash",
+    "NisDomain": "test"
+  },
+  "EmailConfiguration": {
+    "From": "testsync@test.com",
+    "To": "testteam@test.com",
+    "SMTPServer": "smtp.test.com",
+    "SMTPPort": 25
+  },
+  "UserAttributes": {
+    "StandardAttributes": [
+      "SamAccountName",
+      "mail",
+      "GivenName",
+      "Surname",
+      "EmployeeID",
+      "Enabled",
+      "AccountExpirationDate",
+      "Title",
+      "Office",
+      "ObjectGUID",
+      "Department",
+      "l",
+      "co",
+      "DistinguishedName"
+    ],
+    "CloudExtensionAttributes": [
+      "msDS-cloudExtensionAttribute1",
+      "msDS-cloudExtensionAttribute2",
+      "msDS-cloudExtensionAttribute3",
+      "msDS-cloudExtensionAttribute6",
+      "msDS-cloudExtensionAttribute7",
+      "msDS-cloudExtensionAttribute10",
+      "msDS-cloudExtensionAttribute11"
+    ],
+    "TargetOnlyAttributes": ["Info"]
+  }
+}

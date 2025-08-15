@@ -1,0 +1,11 @@
+{
+  "General": {
+    "ScriptRoot": "C:\\TestScripts\\ADSync"
+  },
+  "SafetyThresholds": {
+    "DeletionThreshold": 5
+  },
+  "SourceDomain": {
+    "DomainName": "test.source.local"
+  }
+}

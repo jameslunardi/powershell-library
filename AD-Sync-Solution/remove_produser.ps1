@@ -52,19 +52,22 @@ function Remove-ProdUser {
         [Array[]]$Data,
         
         [Parameter(Mandatory = $false)]
-        [bool]$ReportOnly = $true
+        [bool]$ReportOnly = $true,
+        
+        [Parameter(Mandatory = $true)]
+        [PSCustomObject]$Config
     )
 
     #region Configuration
     # =============================================================================
-    # CONFIGURATION SECTION
+    # CONFIGURATION SECTION - Loaded from config
     # =============================================================================
     
     # Safety thresholds
-    $DeletionThreshold = 45
+    $DeletionThreshold = $Config.SafetyThresholds.DeletionThreshold
     
     # Target domain configuration
-    $LeaversOU = "OU=Leavers,OU=Users,OU=Quarantine,OU=TARGET,DC=prod,DC=local"
+    $LeaversOU = $Config.TargetDomain.LeaversOU
     
     #endregion Configuration
 
@@ -126,7 +129,7 @@ function Remove-ProdUser {
         # CHECK IF USER IS ALREADY IN LEAVERS OU
         # =========================================================================
         
-        if ($User.DistinguishedName -like "*OU=Leavers,OU=Users,OU=Quarantine,OU=TARGET,DC=prod,DC=local") {
+        if ($User.DistinguishedName -like "*$($Config.TargetDomain.LeaversOU)") {
             #region Delete User
             # =====================================================================
             # USER IS IN LEAVERS OU - PROCEED WITH DELETION
